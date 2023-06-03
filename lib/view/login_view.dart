@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/constants/routes.dart';
+import 'package:flutter_bloc/view/register_view.dart';
 
 import '../firebase_options.dart';
 
@@ -33,51 +35,54 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
-      body: SafeArea(
-        child: FutureBuilder(
-            future: Firebase.initializeApp(
-              options: DefaultFirebaseOptions.currentPlatform,
-            ),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return Column(
-                  children: [
-                    TextField(
-                      decoration: const InputDecoration(
-                          hintText: 'Enter your email address'),
-                      controller: _email,
-                    ),
-                    TextField(
-                      decoration: const InputDecoration(
-                          hintText: 'Enter your password'),
-                      controller: _password,
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        final email = _email.text;
-                        final password = _password.text;
+      body: Column(
+        children: [
+          TextField(
+            decoration:
+                const InputDecoration(hintText: 'Enter your email address'),
+            controller: _email,
+          ),
+          TextField(
+            decoration: const InputDecoration(hintText: 'Enter your password'),
+            controller: _password,
+          ),
+          TextButton(
+            onPressed: () async {
+              final email = _email.text;
+              final password = _password.text;
 
-                        try {
-                          final userCredential = await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                                  email: email, password: password);
-                        } on FirebaseAuthException catch (e) {
-                          if (e.code == 'wrong-password') {
-                            print('Password is wrong');
-                          } else if (e.code == 'user-not-found') {
-                            print('User not found');
-                          } else if (e.code == 'invalid-email') {
-                            print('Email address is invalid');
-                          }
-                        }
-                      },
-                      child: const Text('Login'),
-                    ),
-                  ],
+              try {
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: email, password: password);
+
+                // ignore: use_build_context_synchronously
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  notesRoute,
+                  (route) => false,
                 );
+              } on FirebaseAuthException catch (e) {
+                if (e.code == 'wrong-password') {
+                  print('Password is wrong');
+                } else if (e.code == 'user-not-found') {
+                  print('User not found');
+                } else if (e.code == 'invalid-email') {
+                  print('Email address is invalid');
+                }
               }
-              return const Center(child: Text('Error occured'));
-            }),
+            },
+            child: const Text('Login'),
+          ),
+          TextButton(
+              onPressed: () {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  registerRoute,
+                  (route) => false,
+                );
+              },
+              child: const Text('Not registered yet?  Register now!'))
+        ],
       ),
     );
   }
