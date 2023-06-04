@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/services/auth/auth_exceptions.dart';
 import 'package:flutter_bloc/services/auth/auth_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../utilities/firebase_options.dart';
 import 'auth_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class FirebaseAuthProvider implements AuthProvider {
   @override
@@ -55,7 +57,7 @@ class FirebaseAuthProvider implements AuthProvider {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password') {
-        throw WeakPasswordAuthException();
+        throw WrongPasswordAuthException();
       } else if (e.code == 'user-not-found') {
         throw UserNotLoggedInAuthException();
       } else if (e.code == 'invalid-email') {
@@ -86,5 +88,12 @@ class FirebaseAuthProvider implements AuthProvider {
     } else {
       throw UserNotLoggedInAuthException();
     }
+  }
+
+  @override
+  Future<void> initialize() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 }
