@@ -57,23 +57,23 @@ class _LoginViewState extends State<LoginView> {
               try {
                 await FirebaseAuth.instance.signInWithEmailAndPassword(
                     email: email, password: password);
-
-                // ignore: use_build_context_synchronously
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  notesRoute,
-                  (route) => false,
-                );
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'wrong-password') {
-                  await showErrorDialog(context, 'Password is incorrect');
-                } else if (e.code == 'user-not-found') {
-                  await showErrorDialog(context, 'User Not Found');
-                } else if (e.code == 'invalid-email') {
-                  await showErrorDialog(context, 'Email address is invalid');
+                final user = FirebaseAuth.instance.currentUser;
+                if (user?.emailVerified ?? false) {
+                  // ignore: use_build_context_synchronously
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    notesRoute,
+                    (route) => false,
+                  );
                 } else {
-                  await showErrorDialog(context, 'Error : ${e.code}');
+                  // ignore: use_build_context_synchronously
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    verifyRoute,
+                    (route) => false,
+                  );
                 }
+              } on FirebaseAuthException catch (e) {
               } catch (e) {
                 await showErrorDialog(context, e.toString());
               }
