@@ -21,7 +21,7 @@ class _RegisterViewState extends State<RegisterView> {
     _password = TextEditingController();
 
     super.initState();
-  }
+  } 
 
   @override
   void dispose() {
